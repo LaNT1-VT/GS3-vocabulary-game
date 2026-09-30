@@ -1,0 +1,75 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vocabulary Listening Game</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#1f2937;background:#f5f7fb}*{box-sizing:border-box}body{margin:0;min-height:100vh}button{font:inherit;cursor:pointer}.app{max-width:1050px;margin:auto;padding:24px}.panel{background:white;border-radius:24px;padding:28px;box-shadow:0 8px 30px #00000012}.center{text-align:center}h1{font-size:clamp(28px,5vw,48px);margin:8px 0}p{font-size:18px}.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:24px}.card{background:#fff;border:4px solid transparent;border-radius:20px;padding:8px;min-height:220px;box-shadow:0 4px 18px #0002;transition:.15s;overflow:hidden}.card:hover{transform:translateY(-2px);border-color:#c7d2fe}.card img{width:100%;height:230px;object-fit:contain;border-radius:14px}.card.correct{border-color:#22c55e;background:#f0fdf4}.card.wrong{border-color:#ef4444;background:#fef2f2;animation:shake .25s}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.pill{background:#eef2ff;padding:9px 14px;border-radius:999px;font-weight:700}.speaker{border:0;border-radius:999px;background:#4f46e5;color:white;font-size:34px;width:86px;height:86px;box-shadow:0 6px 16px #4f46e555}.speaker:active{transform:scale(.96)}.status{min-height:36px;font-size:22px;font-weight:800;margin:12px}.primary,.secondary{border:0;border-radius:14px;padding:13px 22px;font-weight:800;margin:6px}.primary{background:#4f46e5;color:white}.secondary{background:#e5e7eb;color:#111827}.countBtn{border:2px solid #c7d2fe;background:white;border-radius:14px;padding:15px 24px;font-weight:800;font-size:18px;margin:6px}.countBtn:hover{background:#eef2ff}.hidden{display:none!important}.small{font-size:14px;color:#6b7280}.result{font-size:72px;margin:8px}.progress{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:14px 0}.progress>div{height:100%;background:#4f46e5;transition:.2s}@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.feedback{position:fixed;inset:0;background:#0007;display:flex;align-items:center;justify-content:center;z-index:20;padding:20px}.feedbackBox{background:white;border-radius:30px;padding:24px;max-width:460px;width:92%;text-align:center;box-shadow:0 20px 60px #0005;animation:pop .22s ease-out}.feedbackBox img{width:min(270px,75vw);height:230px;object-fit:contain}.feedbackTitle{font-size:34px;font-weight:900;margin:8px 0}.feedbackSub{font-size:18px;margin:0}.answerReveal{font-weight:800;margin-top:8px}.correctText{color:#15803d}.wrongText{color:#b91c1c}@keyframes pop{from{transform:scale(.75);opacity:0}to{transform:scale(1);opacity:1}}
+.fireworks{position:absolute;inset:0;overflow:hidden;pointer-events:none}.spark{position:absolute;font-size:34px;animation:burst 1.4s ease-out infinite;opacity:0}.spark:nth-child(1){left:12%;top:18%;animation-delay:.05s}.spark:nth-child(2){left:76%;top:16%;animation-delay:.3s}.spark:nth-child(3){left:20%;top:68%;animation-delay:.55s}.spark:nth-child(4){left:82%;top:62%;animation-delay:.8s}.spark:nth-child(5){left:47%;top:8%;animation-delay:1.05s}.spark:nth-child(6){left:48%;top:76%;animation-delay:1.3s}@keyframes burst{0%{transform:scale(.2) rotate(0);opacity:0}25%{opacity:1}70%{transform:scale(1.7) rotate(120deg);opacity:1}100%{transform:scale(2.3) rotate(220deg);opacity:0}}
+@media(max-width:650px){.app{padding:10px}.panel{padding:14px}.choices{gap:10px}.card{min-height:150px}.card img{height:165px}.speaker{width:72px;height:72px;font-size:29px}}
+</style></head><body><main class="app">
+<section id="start" class="panel center"><div style="font-size:58px">🎧🖼️</div><h1>Vocabulary Listening Game</h1><p>Nghe từ và chọn đúng thẻ hình.</p><h3>Chọn số câu</h3><div><button class="countBtn" data-n="10">10 câu</button><button class="countBtn" data-n="20">20 câu</button><button class="countBtn" data-n="30">30 câu</button><button class="countBtn" data-n="57">Tất cả 57</button></div><p class="small">Mỗi lượt câu hỏi và vị trí các thẻ đều được xáo trộn.</p><div id="savedActions" class="hidden"><button id="continueSaved" class="primary">▶️ Continue Saved Progress</button><button id="resetProgress" class="secondary">🗑️ Reset Progress</button></div></section>
+<section id="game" class="panel hidden"><div class="top"><span id="counter" class="pill"></span><span id="score" class="pill"></span></div><div class="progress"><div id="bar"></div></div><div class="center"><button id="speaker" class="speaker" aria-label="Nghe từ">🔊</button><div class="small">Bấm loa để nghe lại</div><div id="status" class="status"></div></div><div id="choices" class="choices"></div></section>
+<section id="end" class="panel center hidden"><div id="resultEmoji" class="result">🎉</div><h1>Round Complete!</h1><p id="finalScore"></p><p id="wrongInfo"></p><p id="sessionInfo" class="small"></p><div><button id="retryWrong" class="primary hidden">🔁 Practice Wrong Answers</button><button id="playAgain" class="secondary">▶️ Next Words</button></div></section>
+</main>
+<div id="feedback" class="feedback hidden" aria-live="polite"><div id="fireworks" class="fireworks hidden"><span class="spark">🎆</span><span class="spark">✨</span><span class="spark">🎇</span><span class="spark">⭐</span><span class="spark">🎆</span><span class="spark">✨</span></div><div class="feedbackBox"><img id="feedbackImg" alt=""><div id="feedbackTitle" class="feedbackTitle"></div><p id="feedbackSub" class="feedbackSub"></p></div></div>
+<script>
+const WORDS = ["GS3_ant", "GS3_bag", "GS3_bathroom", "GS3_black", "GS3_blocks", "GS3_blue", "GS3_book", "GS3_box", "GS3_brown", "GS3_card", "GS3_classroom", "GS3_clothes", "GS3_crayon", "GS3_door", "GS3_drink", "GS3_eraser", "GS3_game", "GS3_green", "GS3_ground", "GS3_hook", "GS3_inside (outside)", "GS3_jungle gym", "GS3_laugh", "GS3_left (right)", "GS3_light", "GS3_lunch", "GS3_merry-go-round", "GS3_office", "GS3_orange", "GS3_page", "GS3_paint", "GS3_paper", "GS3_pencil", "GS3_pink", "GS3_play dough", "GS3_playground", "GS3_purple", "GS3_reach", "GS3_red", "GS3_sand", "GS3_sandbox", "GS3_school", "GS3_scissors", "GS3_shake", "GS3_slide", "GS3_song", "GS3_spin", "GS3_storybook", "GS3_swing", "GS3_table", "GS3_tape", "GS3_trash", "GS3_wall", "GS3_water", "GS3_white", "GS3_window", "GS3_yellow"];
+const enc=s=>encodeURIComponent(s).replace(/'/g,'%27');
+const group=s=>WORDS.indexOf(s)<29?1:2;
+const img=s=>`image${group(s)}/${enc(s)}.jpg`, aud=s=>`audio${group(s)}/${enc(s)}.mp3`;
+const $=id=>document.getElementById(id), shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let questions=[], qi=0, points=0, locked=false, audio=new Audio();
+let batchSize=10, mainDeck=[], mainPos=0, unresolvedWrong=new Set(), mode='main', currentMisses=new Set();
+let screenState='start';
+const SAVE_KEY='gs3VocabularyGameV1';
+function show(id){screenState=id;['start','game','end'].forEach(x=>$(x).classList.toggle('hidden',x!==id))}
+function saveProgress(){
+  const state={version:7,batchSize,mainDeck,mainPos,unresolvedWrong:[...unresolvedWrong],mode,questions,qi,points,screenState};
+  localStorage.setItem(SAVE_KEY,JSON.stringify(state)); updateSavedActions();
+}
+function clearProgress(){localStorage.removeItem(SAVE_KEY);updateSavedActions()}
+function hasSaved(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return !!(x&&x.mainDeck&&x.mainDeck.length)}catch(e){return false}}
+function updateSavedActions(){$('savedActions').classList.toggle('hidden',!hasSaved())}
+function restoreProgress(){
+  try{
+    const x=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(!x||!x.mainDeck?.length)return false;
+    batchSize=x.batchSize||10;mainDeck=x.mainDeck;mainPos=x.mainPos||0;unresolvedWrong=new Set(x.unresolvedWrong||[]);mode=x.mode||'main';questions=x.questions||[];qi=x.qi||0;points=x.points||0;
+    if(x.screenState==='game'&&questions.length&&qi<questions.length){show('game');render(false)}
+    else if(x.screenState==='end'){showEnd(false)}
+    else {show('start');updateSavedActions()}
+    return true;
+  }catch(e){return false}
+}
+function beginSession(n){batchSize=n;mainDeck=shuffle(WORDS);mainPos=0;unresolvedWrong=new Set();questions=[];qi=0;points=0;saveProgress();startNextMain()}
+function startNextMain(){
+  if(mainPos>=mainDeck.length){finishAll();return}
+  mode='main';questions=mainDeck.slice(mainPos,Math.min(mainPos+batchSize,mainDeck.length));mainPos+=questions.length;startRound();
+}
+function startPractice(){
+  if(!unresolvedWrong.size){showEnd();return}
+  mode='practice';questions=shuffle([...unresolvedWrong]);startRound();
+}
+function startRound(){qi=0;points=0;currentMisses=new Set();show('game');saveProgress();render()}
+function play(){audio.pause();audio=new Audio(aud(questions[qi]));audio.play().catch(()=>{})}
+function render(autoPlay=true){locked=false;let answer=questions[qi];$('counter').textContent=`${mode==='practice'?'Practice':'Question'} ${qi+1} / ${questions.length}`;$('score').textContent=`⭐ ${points}`;$('bar').style.width=`${qi/questions.length*100}%`;$('status').textContent='';
+ let distract=shuffle(WORDS.filter(x=>x!==answer)).slice(0,3), opts=shuffle([answer,...distract]);$('choices').innerHTML='';opts.forEach(w=>{let b=document.createElement('button');b.className='card';b.innerHTML=`<img src="${img(w)}" alt="Vocabulary card">`;b.onclick=()=>choose(b,w,answer);$('choices').appendChild(b)});if(autoPlay)setTimeout(play,250)}
+function wordLabel(s){return s.replace(/^GS2_/,'').replace(/_/g,' ')}
+function showFeedback(ok,answer){
+  $('feedbackImg').src=ok?'ui/correct.svg':'ui/wrong.svg';$('feedbackImg').alt=ok?'Correct answer celebration':'Sad face for an incorrect answer';
+  $('feedbackTitle').textContent=ok?'🎉 Great job!':'😢 Oops! Not quite.';$('feedbackTitle').className='feedbackTitle '+(ok?'correctText':'wrongText');
+  $('feedbackSub').innerHTML=ok?'Excellent! You got it right!':`The correct answer is <span class="answerReveal">${wordLabel(answer)}</span>.<br>Keep practicing — you can do it!`;
+  $('fireworks').classList.toggle('hidden',!ok);$('feedback').classList.remove('hidden');
+}
+function choose(btn,w,answer){if(locked)return;locked=true;const ok=w===answer;if(ok){points++;btn.classList.add('correct');if(mode==='practice')unresolvedWrong.delete(answer)}else{btn.classList.add('wrong');currentMisses.add(answer);unresolvedWrong.add(answer)}$('score').textContent=`⭐ ${points}`;showFeedback(ok,answer);setTimeout(()=>{$('feedback').classList.add('hidden');$('fireworks').classList.add('hidden');qi++;if(qi<questions.length){saveProgress();render()}else showEnd()},2000)}
+function showEnd(doSave=true){show('end');let total=questions.length;$('finalScore').innerHTML=`You got <b>${points}/${total}</b> correct.`;$('wrongInfo').innerHTML=unresolvedWrong.size?`<b>Words to practice: ${unresolvedWrong.size}</b>`:'🌟 No words waiting for practice!';
+ const done=mainPos>=mainDeck.length;$('sessionInfo').textContent=done?`Main round progress: ${WORDS.length}/${WORDS.length} words completed.`:`Main round progress: ${mainPos}/${WORDS.length} words completed.`;
+ $('resultEmoji').textContent=points===total?'🏆':'👏';$('retryWrong').classList.toggle('hidden',unresolvedWrong.size===0);
+ $('playAgain').textContent=done?'🔄 Start a New Round':`▶️ Next ${Math.min(batchSize,WORDS.length-mainPos)} Words`;
+ $('playAgain').onclick=()=>{if(done){clearProgress();show('start')}else startNextMain()}; if(doSave)saveProgress();
+}
+function finishAll(){show('end');$('resultEmoji').textContent='🎉';$('finalScore').innerHTML=`<b>Amazing! You've practiced all ${WORDS.length} words!</b>`;$('wrongInfo').innerHTML=unresolvedWrong.size?`<b>Words still to practice: ${unresolvedWrong.size}</b>`:'🌟 You have mastered every word in this round!';$('sessionInfo').textContent=`Main round progress: ${WORDS.length}/${WORDS.length} words completed.`;$('retryWrong').classList.toggle('hidden',unresolvedWrong.size===0);$('playAgain').textContent='🔄 Start a New Round';$('playAgain').onclick=()=>{clearProgress();show('start')};saveProgress()}
+document.querySelectorAll('.countBtn').forEach(b=>b.onclick=()=>{if(hasSaved()&&!confirm('Start a new round and replace the saved progress?'))return;beginSession(+b.dataset.n)});
+$('speaker').onclick=play;$('retryWrong').onclick=startPractice;
+$('continueSaved').onclick=restoreProgress;
+$('resetProgress').onclick=()=>{if(confirm('Reset all saved progress?')){clearProgress();show('start')}};
+updateSavedActions();
+if(hasSaved()) restoreProgress();
+</script></body></html>
